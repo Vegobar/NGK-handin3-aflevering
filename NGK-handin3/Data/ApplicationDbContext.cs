@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NGK_handin3.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,8 @@ namespace NGK_handin3.Data
 {
     public class ApplicationDbContext :DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-: base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-
-        //Indsæt vores egne modeller
-
-
+        public DbSet<WeatherObservation> Weather { get; set; }
     }
 }

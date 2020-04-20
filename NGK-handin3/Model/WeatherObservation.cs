@@ -7,6 +7,7 @@ namespace NGK_handin3.Model
 {
     public class WeatherObservation
     {
+        public int WeatherObservationId { get; set; }
         //Time
         public DateTime Time { get; set; }
 

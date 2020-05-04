@@ -21,14 +21,14 @@ namespace NGK_handin3.Controllers
             _context = context;
         }
 
-        // GET: api/WeatherObservations
+        // GET: api/WeatherObservations/GetWeather
         [HttpGet("GetWeather")]
         public async Task<ActionResult<IEnumerable<WeatherObservation>>> GetWeather()
         {
             var wheater = await _context.Weather.ToListAsync();
             List<WeatherObservation> three_returned = new List<WeatherObservation>();
 
-            if (wheater.Count >= 4)
+            if (wheater.Count() >= 4)
             {
                 for (int i = wheater.Count() - 3; i < wheater.Count(); i++)
                 {

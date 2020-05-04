@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -54,7 +56,13 @@ namespace NGK_handin3
                     ;
 
             });
-            services.AddControllers();
+            services.AddWebSockets(options =>
+            {
+                options.KeepAliveInterval = TimeSpan.FromSeconds(120);
+                options.ReceiveBufferSize = 4 * 1024;
+                options.AllowedOrigins.Add("https://localhost");
+            });
+                services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,7 +74,7 @@ namespace NGK_handin3
             }
 
             app.UseHttpsRedirection();
-
+            app.UseWebSockets();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

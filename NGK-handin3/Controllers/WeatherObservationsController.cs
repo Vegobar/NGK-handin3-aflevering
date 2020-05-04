@@ -28,7 +28,7 @@ namespace NGK_handin3.Controllers
             var wheater = await _context.Weather.ToListAsync();
             List<WeatherObservation> three_returned = new List<WeatherObservation>();
 
-            if (wheater.Count >= 4)
+            if (wheater.Count() >= 4)
             {
                 for (int i = wheater.Count() - 3; i < wheater.Count(); i++)
                 {

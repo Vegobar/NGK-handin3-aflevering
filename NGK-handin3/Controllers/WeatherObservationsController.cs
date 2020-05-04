@@ -25,7 +25,19 @@ namespace NGK_handin3.Controllers
         [HttpGet("GetWeather")]
         public async Task<ActionResult<IEnumerable<WeatherObservation>>> GetWeather()
         {
-            return await _context.Weather.ToListAsync();
+            var wheater = await _context.Weather.ToListAsync();
+            List<WeatherObservation> three_returned = new List<WeatherObservation>();
+
+            if (wheater.Count >= 4)
+            {
+                for (int i = wheater.Count() - 3; i < wheater.Count(); i++)
+                {
+                    three_returned.Add(wheater.ElementAt(i));
+                }
+                return three_returned;
+            }
+
+            return wheater;
         }
 
         // GET: api/WeatherObservations/5

@@ -22,7 +22,7 @@ namespace NGK_handin3.Controllers
         }
 
         // GET: api/WeatherObservations
-        [HttpGet]
+        [HttpGet("GetWeather")]
         public async Task<ActionResult<IEnumerable<WeatherObservation>>> GetWeather()
         {
             return await _context.Weather.ToListAsync();

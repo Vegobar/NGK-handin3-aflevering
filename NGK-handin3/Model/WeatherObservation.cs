@@ -9,7 +9,7 @@ namespace NGK_handin3.Model
     {
         public int WeatherObservationId { get; set; }
         //Time
-        public DateTime Time { get; set; }
+        public Time Time = new Time();
 
         // Location
         public string Name { get; set; }
@@ -23,5 +23,13 @@ namespace NGK_handin3.Model
 
 
 
+    }
+
+    public class Time
+    {
+        public string day { get; set; } = DateTime.Now.Day.ToString();
+        public string month { get; set; } = DateTime.Now.Month.ToString();
+        public string hour { get; set; } = DateTime.Now.Hour.ToString();
+        public string minutes { get; set; } = DateTime.Now.Minute.ToString();
     }
 }

@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Fancy Weatherstation 2.0</title>
+</head>
+<h1>Fancy weatherstation 2.0</h1>
+<body onload="getData()">
+    <div>
+        <div id="myLoginContainer">
+            <input type="text" name="username" id="username" placeholder="Username goes here" />
+            <input type="password" name="password" id="password" placeholder="Password goes here" />
+            <button id="btnLogin">Login</button>
+        </div>
+        <div>
+            <div id="ResponseContainer"></div>
+        </div>
+        <div>
+            <button id="getThree">Load latest 3</button>
+        </div>
+        <div>
+            <label>Get live update</label>
+            <input type="checkbox" id="getLiveUpdate"></input>
+        </div>
+        <div id="LogoutContainer">
+            <button id="btnLogout" hidden>Logout</button>
+        </div>
+    </div>
+</body>
+<script>
+    import axios from "https://unpkg.com/axios/dist/axios.min.js";
+    axios.baseURL = 'http://localhost:5000/api/WeatherObservations';
+    var connection = null;
+    $(function () {
+        $('#btnLogin').click(function () {
+            axios.post('/',
+                {
+                    username: $('#username').val(),
+                    password: $('#password').val()
+                }).then(function (response) {
+                    if (response.status !== 200) {
+                        console.log("Something went wrong" + response.status);
+                        return;
+                    }
+                    localStorage.setItem("token", response.data);
+                    axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data;
+                    $('#myLoginContainer').hide();
+                    $('#LogoutContainer').show();
+                }).catch(function (err) {
+                    console.log(err);
+                });
+        });
+    });
+
+    function getData() {
+        axios.post('/')
+            .then(function(response) {
+                if (response.status !== 200) {
+                    console.log("Error " + response.status)
+                    return;
+                }
+                var readings = response.data;
+                var display = '<p>' + reading.data + '</p>';
+                $('#ResponseContainer').html = display;
+            }).catch(function(err) {
+                console.log(err);
+            });
+    }
+
+    $(function() {
+        $('#getLiveUpdate').checked(function() {
+            if (checked) {
+                connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
+            } else {
+                connection = null;
+            }
+        });
+    });
+
+    $(function() {
+        $('#getThree').click(function() {
+            axios.get('/')
+                .then(function(response) {
+                    if (response.status !== 200) {
+                        console.log("Warning!!!!" + response.status);
+                        return;
+                    }
+
+                    var readings = response.data;
+                    var display;
+
+                    for (var i = 0; i < readings.length; i++) {
+                        display += '<p>' + readings[i] + '</p><br/>';
+                    }
+                    $('#ResponseContainer').html = display;
+                }).catch(function(err) {
+                    console.log(err);
+                });
+        });
+    });
+
+    //var connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
+
+    connection.on("ReceiveMessage", function (message) {
+        var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        //var li = document.createElement("li");
+        //li.textContent = msg;
+        $('#ResponseContainer').html = msg;
+        //document.getElementById("weatherList").appendChild(li);
+    });
+
+
+
+</script>
+</html>
+

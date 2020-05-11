@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NGK_handin3.Data;
+using NGK_handin3.HubbaBubba;
 
 namespace NGK_handin3
 {
@@ -34,6 +35,8 @@ namespace NGK_handin3
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
+            services.AddSignalR(); // Needed for websocket support
+
 
 
             services.AddAuthentication(options =>
@@ -82,6 +85,7 @@ namespace NGK_handin3
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<WeatherHub>("/weatherHub");
             });
         }
     }

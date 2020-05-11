@@ -4,8 +4,6 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

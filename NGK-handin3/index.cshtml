@@ -29,7 +29,8 @@
 </body>
 <script>
     import axios from "https://unpkg.com/axios/dist/axios.min.js";
-    axios.baseURL = http://localhost:5000/api/WeatherObservations;
+    axios.baseURL = 'http://localhost:5000/api/WeatherObservations';
+    var connection = null;
     $(function () {
         $('#btnLogin').click(function () {
             axios.post('/',
@@ -69,9 +70,9 @@
     $(function() {
         $('#getLiveUpdate').checked(function() {
             if (checked) {
-                //setup websocket
+                connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
             } else {
-                //disable websocket
+                connection = null;
             }
         });
     });
@@ -88,7 +89,7 @@
                     var readings = response.data;
                     var display;
 
-                    for (i = 0; i < readings.length; i++) {
+                    for (var i = 0; i < readings.length; i++) {
                         display += '<p>' + readings[i] + '</p><br/>';
                     }
                     $('#ResponseContainer').html = display;
@@ -98,13 +99,14 @@
         });
     });
 
-    var connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
+    //var connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
 
     connection.on("ReceiveMessage", function (message) {
         var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        var li = document.createElement("li");
-        li.textContent = msg;
-        document.getElementById("weatherList").appendChild(li);
+        //var li = document.createElement("li");
+        //li.textContent = msg;
+        $('#ResponseContainer').html = msg;
+        //document.getElementById("weatherList").appendChild(li);
     });
 
 

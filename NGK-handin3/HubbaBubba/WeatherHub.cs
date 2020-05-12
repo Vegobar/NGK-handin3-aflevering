@@ -8,7 +8,7 @@ namespace NGK_handin3.HubbaBubba
 {
     public class WeatherHub: Hub
     {
-        public async Task SendWeather(string message)
+        public async Task SendWeather(object message)
         {
             await Clients.All.SendAsync("ReceiveMessage", message);
         }

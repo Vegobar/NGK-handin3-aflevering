@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,20 +32,32 @@ namespace NGK_handin3.Controllers
         [HttpGet("GetWeather")]
         public async Task<ActionResult<IEnumerable<WeatherObservation>>> GetWeather()
         {
-            var wheater = await _context.Weather.ToListAsync();
+            var weather = await _context.Weather.ToListAsync();
             List<WeatherObservation> three_returned = new List<WeatherObservation>();
 
-            if (wheater.Count() >= 4)
+            if (weather.Count() >= 4)
             {
-                for (int i = wheater.Count() - 3; i < wheater.Count(); i++)
+                for (int i = weather.Count() - 3; i < weather.Count(); i++)
                 {
-                    three_returned.Add(wheater.ElementAt(i));
+                    three_returned.Add(weather.ElementAt(i));
                 }
                 return three_returned;
             }
 
-            return wheater;
+            return weather;
         }
+
+        //GET: api/WeatherObservations/GetWeatherForecast
+        [HttpGet("GetWeatherForecast")]
+        public async Task<ActionResult<IEnumerable<WeatherObservation>>>GetWeatherForecast(DateTime start, DateTime stop)
+        {
+            var weather = await _context.Weather
+                .Where(p => Int32.Parse(p.Time.month) >= start.Month && Int32.Parse(p.Time.day) >= start.Day && Int32.Parse(p.Time.hour) >= start.Hour
+                && Int32.Parse(p.Time.month) <= stop.Month && Int32.Parse(p.Time.day)<= stop.Month && Int32.Parse(p.Time.hour)<=stop.Hour).ToListAsync();
+
+            return weather;
+        }
+        
 
         // GET: api/WeatherObservations/5
         [HttpGet("{id}")]

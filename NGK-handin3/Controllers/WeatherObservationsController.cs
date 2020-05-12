@@ -52,9 +52,8 @@ namespace NGK_handin3.Controllers
         public async Task<ActionResult<IEnumerable<WeatherObservation>>>GetWeatherForecast(DateTime start, DateTime stop)
         {
             var weather = await _context.Weather
-                .Where(p => Int32.Parse(p.Time.month) >= start.Month && Int32.Parse(p.Time.day) >= start.Day && Int32.Parse(p.Time.hour) >= start.Hour
-                && Int32.Parse(p.Time.month) <= stop.Month && Int32.Parse(p.Time.day)<= stop.Month && Int32.Parse(p.Time.hour)<=stop.Hour).ToListAsync();
-
+                .Where(p => (Int32.Parse(p.Time.month) >= start.Month && Int32.Parse(p.Time.day) >= start.Day && Int32.Parse(p.Time.hour) >= start.Hour) && (Int32.Parse(p.Time.month) <= stop.Month && Int32.Parse(p.Time.day) <= stop.Month && Int32.Parse(p.Time.hour) <= stop.Hour)).ToListAsync();
+                
             return weather;
         }
         

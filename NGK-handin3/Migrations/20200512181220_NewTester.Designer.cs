@@ -10,8 +10,8 @@ using NGK_handin3.Data;
 namespace NGK_handin3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200511124802_fixingTime")]
-    partial class fixingTime
+    [Migration("20200512181220_NewTester")]
+    partial class NewTester
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

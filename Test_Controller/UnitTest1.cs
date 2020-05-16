@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NGK_handin3.Controllers;
 using NGK_handin3.Data;
@@ -8,12 +9,11 @@ using Xunit;
 
 namespace Test_Controller
 {
-    [TestClass]
     public class UnitTest1
     {
         private ApplicationDbContext dbContext;
 
-        [TestMethod]
+        [Fact]
         public async void CheckId()
         {
             //Arrange

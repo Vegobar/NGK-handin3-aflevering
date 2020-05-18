@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +30,13 @@ namespace NGK_handin3.Controllers
             return RedirectToPage(nameof(index));
         }
 
+        [Authorize]
+        [HttpGet("test")]
+        public ActionResult testing()
+        {
+            return Ok();
+        }
+
         // GET: api/WeatherObservations/GetWeather
         [HttpGet("GetWeather")]
         public async Task<ActionResult<IEnumerable<WeatherObservation>>> GetWeather()
@@ -48,13 +57,38 @@ namespace NGK_handin3.Controllers
         }
 
         //GET: api/WeatherObservations/GetWeatherForecast
-        [HttpGet("GetWeatherForecast")]
-        public async Task<ActionResult<IEnumerable<WeatherObservation>>>GetWeatherForecast(DateTime start, DateTime stop)
-        {
-            var weather = await _context.Weather
-                .Where(p => (Int32.Parse(p.Time.month) >= start.Month && Int32.Parse(p.Time.day) >= start.Day && Int32.Parse(p.Time.hour) >= start.Hour) && (Int32.Parse(p.Time.month) <= stop.Month && Int32.Parse(p.Time.day) <= stop.Month && Int32.Parse(p.Time.hour) <= stop.Hour)).ToListAsync();
+        //[HttpGet("GetWeatherForecast")]
+        //public async Task<ActionResult<IEnumerable<WeatherObservation>>>GetWeatherForecast(DateTime start, DateTime stop)
+        //{
+        //    var weather = await _context.Weather
+        //        .Where(p => (Int32.Parse(p.Time.month) >= start.Month && Int32.Parse(p.Time.day) >= start.Day && Int32.Parse(p.Time.hour) >= start.Hour) && (Int32.Parse(p.Time.month) <= stop.Month && Int32.Parse(p.Time.day) <= stop.Month && Int32.Parse(p.Time.hour) <= stop.Hour)).ToListAsync();
                 
-            return weather;
+        //    return weather;
+        //}
+
+        [HttpGet("GetWeatherForecasts")]
+        public async Task<ActionResult<List<WeatherObservation>>> GetWeatherForecast([FromBody]Time[] times)
+        {
+            //var weather = await _context.Weather
+            //    .Where(p => (p.Time.year >= times[0].year && p.Time.month >= times[0].month && p.Time.day >= times[0].day &&  p.Time.hour >= times[0].hour && p.Time.minutes >= times[0].minutes) && 
+            //                (p.Time.year <= times[1].year && p.Time.month <= times[1].month && p.Time.day <= times[1].day && p.Time.hour <= times[1].hour && p.Time.minutes <= times[1].minutes)).ToListAsync();
+            var myWeather = await (from p in _context.Weather
+                from t in _context.times
+                where (t.year >= times[0].year && t.month >= times[0].month && t.day >= times[0].day &&  t.hour >= times[0].hour && t.minutes >= times[0].minutes) && 
+                      (t.year <= times[1].year && t.month <= times[1].month && t.day <= times[1].day && t.hour <= times[1].hour && t.minutes <= times[1].minutes) &&
+                      (p.Time.id == t.id)
+                select new
+                {
+                    Time = t,
+                    Name = p.Name,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    Temperature = p.Temperature,
+                    Humidity = p.Humidity,
+                    AirPreasure = p.AirPressure
+                }).ToListAsync();
+            
+            return Ok(myWeather);
         }
         
 

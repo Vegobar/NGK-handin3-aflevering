@@ -12,5 +12,6 @@ namespace NGK_handin3.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<WeatherObservation> Weather { get; set; }
+        public DbSet<Time> times { get; set; }
     }
 }

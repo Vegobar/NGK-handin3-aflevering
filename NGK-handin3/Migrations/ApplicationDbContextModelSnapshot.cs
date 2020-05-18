@@ -21,26 +21,29 @@ namespace NGK_handin3.Migrations
 
             modelBuilder.Entity("NGK_handin3.Model.Time", b =>
                 {
-                    b.Property<int>("entry")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("day")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("day")
+                        .HasColumnType("int");
 
-                    b.Property<string>("hour")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("hour")
+                        .HasColumnType("int");
 
-                    b.Property<string>("minutes")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("minutes")
+                        .HasColumnType("int");
 
-                    b.Property<string>("month")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("month")
+                        .HasColumnType("int");
 
-                    b.HasKey("entry");
+                    b.Property<int>("year")
+                        .HasColumnType("int");
 
-                    b.ToTable("Time");
+                    b.HasKey("id");
+
+                    b.ToTable("times");
                 });
 
             modelBuilder.Entity("NGK_handin3.Model.WeatherObservation", b =>
@@ -68,12 +71,12 @@ namespace NGK_handin3.Migrations
                     b.Property<decimal>("Temperature")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("Timeentry")
+                    b.Property<int?>("Timeid")
                         .HasColumnType("int");
 
                     b.HasKey("WeatherObservationId");
 
-                    b.HasIndex("Timeentry");
+                    b.HasIndex("Timeid");
 
                     b.ToTable("Weather");
                 });
@@ -82,7 +85,7 @@ namespace NGK_handin3.Migrations
                 {
                     b.HasOne("NGK_handin3.Model.Time", "Time")
                         .WithMany()
-                        .HasForeignKey("Timeentry");
+                        .HasForeignKey("Timeid");
                 });
 #pragma warning restore 612, 618
         }

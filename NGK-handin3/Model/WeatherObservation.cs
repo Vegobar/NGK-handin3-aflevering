@@ -29,10 +29,12 @@ namespace NGK_handin3.Model
     public class Time
     {
         [Key]
-        public int entry { get; set; }
-        public string day { get; set; } = DateTime.Now.Day.ToString();
-        public string month { get; set; } = DateTime.Now.Month.ToString();
-        public string hour { get; set; } = DateTime.Now.Hour.ToString();
-        public string minutes { get; set; } = DateTime.Now.Minute.ToString();
+        public int id { get; set; }
+
+        public int year { get; set; } = DateTime.Now.Year;
+        public int day { get; set; } = DateTime.Now.Day;
+        public int month { get; set; } = DateTime.Now.Month;
+        public int hour { get; set; } = DateTime.Now.Hour;
+        public int minutes { get; set; } = DateTime.Now.Minute;
     }
 }

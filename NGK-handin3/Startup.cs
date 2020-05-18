@@ -39,7 +39,7 @@ namespace NGK_handin3
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
             services.AddSignalR(); // Needed for websocket support
-
+            services.AddCors();
 
 
             services.AddAuthentication(options =>
@@ -62,13 +62,6 @@ namespace NGK_handin3
                     ;
 
             });
-            services.AddWebSockets(options =>
-            {
-                options.KeepAliveInterval = TimeSpan.FromSeconds(120);
-                options.ReceiveBufferSize = 4 * 1024;
-                options.AllowedOrigins.Add("https://localhost");
-            });
-                services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,10 +71,15 @@ namespace NGK_handin3
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseCors(builder =>
+                builder.WithOrigins("http://localhost:44307")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
 
             app.UseHttpsRedirection();
-            app.UseWebSockets();
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
 

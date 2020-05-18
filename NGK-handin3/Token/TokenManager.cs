@@ -14,11 +14,11 @@ namespace NGK_handin3.Token
 {
     public class TokenManager
     {
-        public string GenerateToken(int userId)
+        public string GenerateToken(string user)
         {
             var claims = new Claim[]
             {
-                new Claim(ClaimTypes.Name, userId.ToString()),
+                new Claim(ClaimTypes.Name, user),
                 new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp,
                     new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
@@ -33,7 +33,3 @@ namespace NGK_handin3.Token
         }
     }
 }
-
-/*                     TokenManager myToken = new TokenManager();
-                    return new ObjectResult(myToken.GenerateToken(userId));
-*/

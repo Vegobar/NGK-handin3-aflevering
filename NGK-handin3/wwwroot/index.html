@@ -3,114 +3,134 @@
 <head>
     <meta charset="utf-8" />
     <title>Fancy Weatherstation 2.0</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" 
+            integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" 
+            crossorigin="anonymous"></script>
 </head>
 <h1>Fancy weatherstation 2.0</h1>
 <body onload="getData()">
-    <div>
-        <div id="myLoginContainer">
-            <input type="text" name="username" id="username" placeholder="Username goes here" />
-            <input type="password" name="password" id="password" placeholder="Password goes here" />
-            <button id="btnLogin">Login</button>
-        </div>
-        <div>
-            <div id="ResponseContainer"></div>
-        </div>
-        <div>
-            <button id="getThree">Load latest 3</button>
-        </div>
-        <div>
-            <label>Get live update</label>
-            <input type="checkbox" id="getLiveUpdate"></input>
-        </div>
-        <div id="LogoutContainer">
-            <button id="btnLogout" hidden>Logout</button>
-        </div>
+<div>
+    <div id="myLoginContainer">
+        <input type="text" name="username" id="username" placeholder="Username goes here" />
+        <input type="password" name="password" id="password" placeholder="Password goes here" />
+        <button id="btnLogin">Login</button>
     </div>
-</body>
+    <div>
+        <div id="ResponseContainer"></div>
+    </div>
+    <div>
+        <button onclick="test()">test me</button>
+    </div>
+    <div>
+        <button id="getThree">Load latest 3</button>
+    </div>
+    <div>
+        <label>Get live update</label>
+        <input type="checkbox" id="getLiveUpdate" onclick="liveUpdate()"></input>
+    </div>
+    <div id="LogoutContainer">
+        <button id="btnLogout" hidden>Logout</button>
+    </div>
+</div>
 <script>
-    import axios from "https://unpkg.com/axios/dist/axios.min.js";
-    axios.baseURL = 'http://localhost:5000/api/WeatherObservations';
-    var connection = null;
+    var connection;
     $(function () {
         $('#btnLogin').click(function () {
-            axios.post('/',
+            axios.post('api/Login',
                 {
                     username: $('#username').val(),
                     password: $('#password').val()
                 }).then(function (response) {
-                    if (response.status !== 200) {
-                        console.log("Something went wrong" + response.status);
-                        return;
-                    }
-                    localStorage.setItem("token", response.data);
-                    axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data;
-                    $('#myLoginContainer').hide();
-                    $('#LogoutContainer').show();
-                }).catch(function (err) {
-                    console.log(err);
-                });
+                if (response.status !== 200) {
+                    console.log("Something went wrong" + response.status);
+                    return;
+                }
+                localStorage.setItem("token", response.data);
+                axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data;
+                $('#myLoginContainer').hide();
+                $('#LogoutContainer').show();
+            }).catch(function (err) {
+                console.log(err);
+            });
         });
     });
 
     function getData() {
-        axios.post('/')
+        axios.get('api/WeatherObservations/GetWeather')
             .then(function(response) {
                 if (response.status !== 200) {
                     console.log("Error " + response.status)
                     return;
                 }
-                var readings = response.data;
-                var display = '<p>' + reading.data + '</p>';
-                $('#ResponseContainer').html = display;
+                var reading = response.data;
+                let display;
+                for (var i = 0; i < reading.length; i++) {
+                    display += '<p>' + JSON.stringify(reading[i]) + '</p><br/>';
+                }
+                document.getElementById('ResponseContainer').innerHTML = display;
+               // $('#ResponseContainer').html = display;
             }).catch(function(err) {
-                console.log(err);
-            });
+            console.log(err);
+        });
     }
 
-    $(function() {
-        $('#getLiveUpdate').checked(function() {
-            if (checked) {
-                connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
-            } else {
-                connection = null;
-            }
-        });
-    });
+    
+    function liveUpdate(){
+        let checkbox = document.getElementById('getLiveUpdate');
+        if(checkbox.checked == true)
+        {
+            connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
+            console.log("im working");
+        }
+        else{
+            connection = null;
+            console.log("apparently not :( ");
+        }
+    };
+
+                //connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
+
+                //connection = null;
+
 
     $(function() {
         $('#getThree').click(function() {
-            axios.get('/')
+            axios.get('api/WeatherObservations/GetWeather')
                 .then(function(response) {
                     if (response.status !== 200) {
                         console.log("Warning!!!!" + response.status);
                         return;
                     }
 
-                    var readings = response.data;
-                    var display;
+                    let incomming = response.data;
+                    let outgoing;
 
-                    for (var i = 0; i < readings.length; i++) {
-                        display += '<p>' + readings[i] + '</p><br/>';
+                    for (var i = 0; i < incomming.length; i++) {
+                        outgoing += '<p>' + incomming[i] + '</p><br/>';
                     }
-                    $('#ResponseContainer').html = display;
+                    $('#ResponseContainer').html = outgoing;
                 }).catch(function(err) {
-                    console.log(err);
-                });
+                console.log(err);
+            });
         });
     });
 
     //var connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
 
-    connection.on("ReceiveMessage", function (message) {
+   /* connection.on("ReceiveMessage", function (message) {
         var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         //var li = document.createElement("li");
         //li.textContent = msg;
         $('#ResponseContainer').html = msg;
         //document.getElementById("weatherList").appendChild(li);
-    });
-
-
-
+    });*/
+  
+  function test()
+  {
+      axios.get('api/WeatherObservations/test');
+  }
 </script>
+</body>
 </html>
 

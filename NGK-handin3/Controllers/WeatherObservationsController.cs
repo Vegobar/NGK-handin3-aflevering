@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NGK_handin3.Data;
+using NGK_handin3.HubbaBubba;
 using NGK_handin3.Model;
 
 namespace NGK_handin3.Controllers
@@ -18,10 +20,12 @@ namespace NGK_handin3.Controllers
     public class WeatherObservationsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<WeatherHub> _myHub;
 
-        public WeatherObservationsController(ApplicationDbContext context)
+        public WeatherObservationsController(ApplicationDbContext context, IHubContext<WeatherHub> hub)
         {
             _context = context;
+            _myHub = hub;
         }
 
         [HttpGet]
@@ -37,12 +41,47 @@ namespace NGK_handin3.Controllers
             return Ok();
         }
 
+
+        [HttpGet("single")]
+        public async Task<IActionResult> getSingle()
+        {
+            var latest = await (from p in _context.Weather
+                join t in _context.times on p.Time equals t
+                orderby p.WeatherObservationId descending
+                select new WeatherObservation()
+                {
+                    AirPressure = p.AirPressure,
+                    Humidity = p.Humidity,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    Name = p.Name,
+                    Temperature = p.Temperature,
+                    Time = t,
+                    WeatherObservationId = p.WeatherObservationId
+                }).FirstAsync();
+
+            return Ok(latest);
+
+        }
         // GET: api/WeatherObservations/GetWeather
         [HttpGet("GetWeather")]
         public async Task<ActionResult<IEnumerable<WeatherObservation>>> GetWeather()
         {
-            var weather = await _context.Weather.ToListAsync();
+            //var weather = await _context.Weather.ToListAsync();
             List<WeatherObservation> three_returned = new List<WeatherObservation>();
+            
+            var weather = await (from p in _context.Weather
+                from t in _context.times
+                select new WeatherObservation()
+                {
+                    Time = t,
+                    Name = p.Name,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    Temperature = p.Temperature,
+                    Humidity = p.Humidity,
+                    AirPressure = p.AirPressure
+                }).ToListAsync();
 
             if (weather.Count() >= 4)
             {
@@ -55,29 +94,15 @@ namespace NGK_handin3.Controllers
 
             return weather;
         }
-
-        //GET: api/WeatherObservations/GetWeatherForecast
-        //[HttpGet("GetWeatherForecast")]
-        //public async Task<ActionResult<IEnumerable<WeatherObservation>>>GetWeatherForecast(DateTime start, DateTime stop)
-        //{
-        //    var weather = await _context.Weather
-        //        .Where(p => (Int32.Parse(p.Time.month) >= start.Month && Int32.Parse(p.Time.day) >= start.Day && Int32.Parse(p.Time.hour) >= start.Hour) && (Int32.Parse(p.Time.month) <= stop.Month && Int32.Parse(p.Time.day) <= stop.Month && Int32.Parse(p.Time.hour) <= stop.Hour)).ToListAsync();
-                
-        //    return weather;
-        //}
-
+        
         [HttpGet("GetWeatherForecasts")]
         public async Task<ActionResult<List<WeatherObservation>>> GetWeatherForecast([FromBody]Time[] times)
         {
-            //var weather = await _context.Weather
-            //    .Where(p => (p.Time.year >= times[0].year && p.Time.month >= times[0].month && p.Time.day >= times[0].day &&  p.Time.hour >= times[0].hour && p.Time.minutes >= times[0].minutes) && 
-            //                (p.Time.year <= times[1].year && p.Time.month <= times[1].month && p.Time.day <= times[1].day && p.Time.hour <= times[1].hour && p.Time.minutes <= times[1].minutes)).ToListAsync();
             var myWeather = await (from p in _context.Weather
-                from t in _context.times
+                join t in _context.times on p.Time equals t
                 where (t.year >= times[0].year && t.month >= times[0].month && t.day >= times[0].day &&  t.hour >= times[0].hour && t.minutes >= times[0].minutes) && 
-                      (t.year <= times[1].year && t.month <= times[1].month && t.day <= times[1].day && t.hour <= times[1].hour && t.minutes <= times[1].minutes) &&
-                      (p.Time.id == t.id)
-                select new
+                      (t.year <= times[1].year && t.month <= times[1].month && t.day <= times[1].day && t.hour <= times[1].hour && t.minutes <= times[1].minutes)
+                select new WeatherObservation()
                 {
                     Time = t,
                     Name = p.Name,
@@ -85,7 +110,7 @@ namespace NGK_handin3.Controllers
                     Longitude = p.Longitude,
                     Temperature = p.Temperature,
                     Humidity = p.Humidity,
-                    AirPreasure = p.AirPressure
+                    AirPressure = p.AirPressure
                 }).ToListAsync();
             
             return Ok(myWeather);
@@ -146,7 +171,7 @@ namespace NGK_handin3.Controllers
         {
             _context.Weather.Add(weatherObservation);
             await _context.SaveChangesAsync();
-
+            _myHub.Clients.All.SendAsync("WeatherUpdate", null);
             return CreatedAtAction("GetWeatherObservation", new { id = weatherObservation.WeatherObservationId }, weatherObservation);
         }
 
@@ -159,7 +184,6 @@ namespace NGK_handin3.Controllers
             {
                 return NotFound();
             }
-
             _context.Weather.Remove(weatherObservation);
             await _context.SaveChangesAsync();
 

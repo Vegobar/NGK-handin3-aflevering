@@ -3,10 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <title>Fancy Weatherstation 2.0</title>
+    <!-- Integrity generated from https://srihash.org -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" 
             integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" 
             crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@microsoft/signalr@5.0.0-preview.3.20215.14/dist/browser/signalr.min.js"></script>
 </head>
 <h1>Fancy weatherstation 2.0</h1>
 <body onload="getData()">
@@ -34,7 +36,7 @@
     </div>
 </div>
 <script>
-    var connection;
+    const connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
     $(function () {
         $('#btnLogin').click(function () {
             axios.post('api/Login',
@@ -57,19 +59,16 @@
     });
 
     function getData() {
-        axios.get('api/WeatherObservations/GetWeather')
+        axios.get('api/WeatherObservations/single')
             .then(function(response) {
                 if (response.status !== 200) {
                     console.log("Error " + response.status)
                     return;
                 }
                 var reading = response.data;
-                let display;
-                for (var i = 0; i < reading.length; i++) {
-                    display += '<p>' + JSON.stringify(reading[i]) + '</p><br/>';
-                }
-                document.getElementById('ResponseContainer').innerHTML = display;
-               // $('#ResponseContainer').html = display;
+                
+                document.getElementById('ResponseContainer').innerHTML = JSON.stringify(reading);
+                console.log(reading);
             }).catch(function(err) {
             console.log(err);
         });
@@ -80,20 +79,16 @@
         let checkbox = document.getElementById('getLiveUpdate');
         if(checkbox.checked == true)
         {
-            connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
-            console.log("im working");
+            connection.start()
+            .then(function(){console.log("connected")})
+            .catch(function(){console.log("something went wrong")});
         }
         else{
-            connection = null;
-            console.log("apparently not :( ");
+            connection.stop()
+            .then(function(){console.log("connection closed")});
         }
-    };
-
-                //connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
-
-                //connection = null;
-
-
+    }
+    
     $(function() {
         $('#getThree').click(function() {
             axios.get('api/WeatherObservations/GetWeather')
@@ -102,30 +97,37 @@
                         console.log("Warning!!!!" + response.status);
                         return;
                     }
-
                     let incomming = response.data;
-                    let outgoing;
+                    let outgoing = "";
 
                     for (var i = 0; i < incomming.length; i++) {
-                        outgoing += '<p>' + incomming[i] + '</p><br/>';
+                        outgoing += '<p>' + JSON.stringify(incomming[i]) + '</p><br/>';
                     }
-                    $('#ResponseContainer').html = outgoing;
+                    document.getElementById('ResponseContainer').innerHTML = outgoing;
                 }).catch(function(err) {
                 console.log(err);
             });
         });
     });
+    
+    
+    connection.on("WeatherUpdate",function(){
+        axios.get('api/WeatherObservations/single')
+            .then(function(response) {
+                if (response.status !== 200) {
+                    console.log("Error " + response.status)
+                    return;
+                }
+                var reading = response.data;
 
-    //var connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
-
-   /* connection.on("ReceiveMessage", function (message) {
-        var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        //var li = document.createElement("li");
-        //li.textContent = msg;
-        $('#ResponseContainer').html = msg;
-        //document.getElementById("weatherList").appendChild(li);
-    });*/
-  
+                document.getElementById('ResponseContainer').innerHTML = JSON.stringify(reading);
+                console.log(reading);
+            }).catch(function(err) {
+            console.log(err);
+        });
+    })
+    
+    
   function test()
   {
       axios.get('api/WeatherObservations/test');

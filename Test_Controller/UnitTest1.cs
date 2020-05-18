@@ -13,7 +13,7 @@ namespace Test_Controller
     {
         private ApplicationDbContext dbContext;
 
-        [Fact]
+        /*[Fact]
         public async void CheckId()
         {
             //Arrange
@@ -35,7 +35,7 @@ namespace Test_Controller
             //Assert
             var okResult = Xunit.Assert.IsType<WeatherObservation>(result);
             Xunit.Assert.Equal("London", okResult.Name);
-          }
+          }*/
     }
 }
 

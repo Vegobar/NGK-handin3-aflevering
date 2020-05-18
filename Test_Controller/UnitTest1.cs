@@ -1,19 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NGK_handin3.Controllers;
 using NGK_handin3.Data;
+using NGK_handin3.HubbaBubba;
 using NGK_handin3.Model;
 using NSubstitute;
+using SQLitePCL;
 using Xunit;
 
 namespace Test_Controller
 {
     public class UnitTest1
     {
-        private ApplicationDbContext dbContext;
+        private DbContextOptions<ApplicationDbContext> _options;
+        private SqliteConnection _connection;
 
-        /*[Fact]
+        [Fact]
         public async void CheckId()
         {
             //Arrange
@@ -25,8 +31,13 @@ namespace Test_Controller
             weatherObservation.Humidity = 80;
             weatherObservation.AirPressure = 27;
 
-            dbContext = Substitute.For<ApplicationDbContext>();
-            WeatherObservationsController weatherObservationsController = new WeatherObservationsController(dbContext);
+            _connection = new SqliteConnection("DataSource=:memory");
+            _connection.Open();
+            _options = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlite(_connection).Options;
+            var context = new ApplicationDbContext(_options);
+            IHubContext<WeatherHub> hub = Substitute.For<IHubContext<WeatherHub>>();
+
+            WeatherObservationsController weatherObservationsController = new WeatherObservationsController(context,hub);
 
             //Act
             await weatherObservationsController.PostWeatherObservation(weatherObservation);
@@ -35,7 +46,7 @@ namespace Test_Controller
             //Assert
             var okResult = Xunit.Assert.IsType<WeatherObservation>(result);
             Xunit.Assert.Equal("London", okResult.Name);
-          }*/
+          }
     }
 }
 

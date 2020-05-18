@@ -31,7 +31,7 @@ namespace Test_Controller
             weatherObservation.Humidity = 80;
             weatherObservation.AirPressure = 27;
 
-            _connection = new SqliteConnection("DataSource=:memory");
+            _connection = new SqliteConnection("DataSource=:memory:");
             _connection.Open();
             _options = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlite(_connection).Options;
             var context = new ApplicationDbContext(_options);

@@ -70,7 +70,7 @@ namespace NGK_handin3.Controllers
             //var weather = await _context.Weather.ToListAsync();
             List<WeatherObservation> three_returned = new List<WeatherObservation>();
             
-            var weather = await (from p in _context.Weather
+            var weather1 = await (from p in _context.Weather
                 from t in _context.times
                 select new WeatherObservation()
                 {

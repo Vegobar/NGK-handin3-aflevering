@@ -41,8 +41,22 @@ namespace NGK_handin3.Controllers
         [HttpGet("GetWeather")]
         public async Task<ActionResult<IEnumerable<WeatherObservation>>> GetWeather()
         {
-            var weather = await _context.Weather.ToListAsync();
+            //var weather = await _context.Weather.ToListAsync();
             List<WeatherObservation> three_returned = new List<WeatherObservation>();
+
+            var weather = await (from p in _context.Weather
+                join t in _context.times on p.Time equals t
+                select new WeatherObservation()
+                {
+                    AirPressure = p.AirPressure,
+                    Humidity = p.Humidity,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    Name = p.Name,
+                    Temperature = p.Temperature,
+                    Time = t,
+                    WeatherObservationId = p.WeatherObservationId
+                }).ToListAsync();
 
             if (weather.Count() >= 4)
             {

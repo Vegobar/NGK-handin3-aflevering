@@ -11,6 +11,12 @@
     <Compile Remove="Migrations\20200511123803_Updates.Designer.cs" />
     <Compile Remove="Migrations\20200511124802_fixingTime.cs" />
     <Compile Remove="Migrations\20200511124802_fixingTime.Designer.cs" />
+    <Compile Remove="Migrations\20200512195855_initial.cs" />
+    <Compile Remove="Migrations\20200512195855_initial.Designer.cs" />
+    <Compile Remove="Migrations\20200518104815_newtesterTime.cs" />
+    <Compile Remove="Migrations\20200518104815_newtesterTime.Designer.cs" />
+    <Compile Remove="Migrations\20200518105156_newtesterTime.cs" />
+    <Compile Remove="Migrations\20200518105156_newtesterTime.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

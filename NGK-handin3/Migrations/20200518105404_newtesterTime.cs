@@ -2,7 +2,7 @@
 
 namespace NGK_handin3.Migrations
 {
-    public partial class initial : Migration
+    public partial class newtesterTime : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

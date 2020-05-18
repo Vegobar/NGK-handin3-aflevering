@@ -83,6 +83,20 @@ namespace NGK_handin3.Controllers
                     AirPressure = p.AirPressure
                 }).ToListAsync();
 
+            var weather = await (from p in _context.Weather
+                join t in _context.times on p.Time equals t
+                select new WeatherObservation()
+                {
+                    AirPressure = p.AirPressure,
+                    Humidity = p.Humidity,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    Name = p.Name,
+                    Temperature = p.Temperature,
+                    Time = t,
+                    WeatherObservationId = p.WeatherObservationId
+                }).ToListAsync();
+
             if (weather.Count() >= 4)
             {
                 for (int i = weather.Count() - 3; i < weather.Count(); i++)

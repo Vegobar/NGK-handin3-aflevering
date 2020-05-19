@@ -10,8 +10,8 @@ using NGK_handin3.Data;
 namespace NGK_handin3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200518105404_newtesterTime")]
-    partial class newtesterTime
+    [Migration("20200518152726_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,33 +20,6 @@ namespace NGK_handin3.Migrations
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("NGK_handin3.Model.Time", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("day")
-                        .HasColumnType("int");
-
-                    b.Property<int>("hour")
-                        .HasColumnType("int");
-
-                    b.Property<int>("minutes")
-                        .HasColumnType("int");
-
-                    b.Property<int>("month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("year")
-                        .HasColumnType("int");
-
-                    b.HasKey("id");
-
-                    b.ToTable("times");
-                });
 
             modelBuilder.Entity("NGK_handin3.Model.WeatherObservation", b =>
                 {
@@ -73,21 +46,12 @@ namespace NGK_handin3.Migrations
                     b.Property<decimal>("Temperature")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("Timeid")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("WeatherObservationId");
 
-                    b.HasIndex("Timeid");
-
                     b.ToTable("Weather");
-                });
-
-            modelBuilder.Entity("NGK_handin3.Model.WeatherObservation", b =>
-                {
-                    b.HasOne("NGK_handin3.Model.Time", "Time")
-                        .WithMany()
-                        .HasForeignKey("Timeid");
                 });
 #pragma warning restore 612, 618
         }

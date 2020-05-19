@@ -79,12 +79,22 @@ namespace NGK_handin3.Controllers
         [HttpGet("GetWeatherForecasts")]
         public async Task<ActionResult<List<WeatherObservation>>> GetWeatherForecast([FromBody]DateTime[] times)
         {
+            if (times.Count() <= 1)
+            {
+                var myWeather_all_one_day = await (from p in _context.Weather
+                                                   where (p.Time.Day == times[0].Day)
+                                                   select p).ToListAsync();
+                return Ok(myWeather_all_one_day);
+            }
+            else
+            {
+                var myWeather = await (from p in _context.Weather
+                                       where (p.Time >= times[0] && p.Time <= times[1])
+                                       select p).ToListAsync();
+                return Ok(myWeather);
+            }
 
-            var myWeather = await (from p in _context.Weather
-                where (p.Time >= times[0] && p.Time <= times[1])
-                select p).ToListAsync();
-
-         return Ok(myWeather);
+         
         }
         
 

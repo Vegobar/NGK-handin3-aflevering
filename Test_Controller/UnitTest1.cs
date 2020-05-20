@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Net.Http;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.Sqlite;
@@ -20,6 +21,7 @@ using NGK_handin3.Model;
 using NSubstitute;
 using SQLitePCL;
 using Xunit;
+using Xunit.Abstractions;
 using Assert = Xunit.Assert;
 
 namespace Test_Controller
@@ -54,25 +56,23 @@ namespace Test_Controller
 
             //Act
             var result = await _uut.getSingle();
-            var okResult = Xunit.Assert.IsType<OkObjectResult>(result);
-            var contest = okResult.Value;
-            var obj = Xunit.Assert.IsType<WeatherObservation>(contest);
+            var okResult = result as OkObjectResult;
+            var content = okResult.Value as WeatherObservation;
             //Assert
-            Xunit.Assert.Equal("Germany",obj.Name);
+            Xunit.Assert.Equal("Germany",content.Name);
         }
         
         [Fact]
-        public async void Test_Single_Date()
+        public async void Test_get_Latest()
         {
             //Arrange
             DateTime TestTime = new DateTime(2020, 08, 02, 8, 25, 00);
             //Act
             var result = await _uut.getSingle();
-            var okResult = Xunit.Assert.IsType<OkObjectResult>(result);
-            var contest = okResult.Value;
-            var obj = Xunit.Assert.IsType<WeatherObservation>(contest);
+            var okResult = result as OkObjectResult;
+            var content = okResult.Value as WeatherObservation;
             //Assert
-            Xunit.Assert.Equal(TestTime,obj.Time);
+            Xunit.Assert.Equal(TestTime,content.Time);
         }
 
 
@@ -93,6 +93,13 @@ namespace Test_Controller
         }
 
         [Fact]
+        public async void Test_byId_Fail()
+        {
+            var result = await _uut.GetWeatherObservation(20);
+            Xunit.Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
         public async void Test_getThree()
         {
             //Arrange
@@ -100,13 +107,28 @@ namespace Test_Controller
             //Act
             var result = await _uut.GetWeather();
             var content = result.Value;
-            List<WeatherObservation> testing = content.ToList();
+            List<WeatherObservation> testing = content as List<WeatherObservation>;
             
             //Assert
             Xunit.Assert.True(testing.Count == 3);
         }
+
+        [Fact]
+        public async void Test_bySingleDay()
+        {
+            //Arrange
+            DateTime[] times = new DateTime[1] {new DateTime(2020, 08, 02, 8, 25, 00)};
+            //Act
+            var result = await _uut.GetWeatherForecast(times);
+            var okResult = result.Result as OkObjectResult;
+            var content = okResult.Value as List<WeatherObservation>;
+
+            //Assert
+            Xunit.Assert.Equal(1,content.Count);
+        }
+
         
-        [Fact]//Fail somehow??? 
+        [Fact]
         public async void Test_byDay()
         {
             //Arrange
@@ -117,7 +139,8 @@ namespace Test_Controller
             times[1] = time2;
             //Act
             var result = await _uut.GetWeatherForecast(times);
-            var content = result.Value;
+            var okResult = result.Result as OkObjectResult;
+            var content = okResult.Value as List<WeatherObservation>;
             //Assert
             Xunit.Assert.Equal(2, content.Count);
         }
@@ -142,12 +165,152 @@ namespace Test_Controller
             //Act
             await _uut.PostWeatherObservation(insert);
             var result = await _uut.getSingle();
-            var okResult = Xunit.Assert.IsType<OkObjectResult>(result);
-            var contest = okResult.Value;
-            var obj = Xunit.Assert.IsType<WeatherObservation>(contest);
+            var okResult = result as OkObjectResult;
+            var contest = okResult.Value as WeatherObservation;
             //Assert
-            Xunit.Assert.Equal(name,exp);
+            Xunit.Assert.Equal(insert,contest);
 
+        }
+        [Theory]
+        [InlineData("Test",20.20,20.20,35,40,10,"Test")]
+        [InlineData("Test2",400,400,20,30,21,"Test2")]
+        [InlineData("Test3",52,52,35,21,33,"Test3")]
+        public async void Test_post_value_lat(string name, double lat, double lon, int temp, int hum, int air,string exp)
+        {
+            //Arrange
+            var insert = new WeatherObservation()
+            {
+                Name = name,
+                Latitude = lat,
+                Longitude = lon,
+                Temperature = temp,
+                Humidity = hum,
+                AirPressure = air
+            };
+            //Act
+            await _uut.PostWeatherObservation(insert);
+            var result = await _uut.getSingle();
+            var okResult = result as OkObjectResult;
+            var contest = okResult.Value as WeatherObservation;
+            //Assert
+            Xunit.Assert.Equal(insert.Latitude,contest.Latitude);
+
+        }
+        [Theory]
+        [InlineData("Test",20.20,20.20,35,40,10,"Test")]
+        [InlineData("Test2",400,400,20,30,21,"Test2")]
+        [InlineData("Test3",52,52,35,21,33,"Test3")]
+        public async void Test_post_value_long(string name, double lat, double lon, int temp, int hum, int air,string exp)
+        {
+            //Arrange
+            var insert = new WeatherObservation()
+            {
+                Name = name,
+                Latitude = lat,
+                Longitude = lon,
+                Temperature = temp,
+                Humidity = hum,
+                AirPressure = air
+            };
+            //Act
+            await _uut.PostWeatherObservation(insert);
+            var result = await _uut.getSingle();
+            var okResult = result as OkObjectResult;
+            var contest = okResult.Value as WeatherObservation;
+            //Assert
+            Xunit.Assert.Equal(insert.Longitude,contest.Longitude);
+
+        }
+
+        [Theory]
+        [InlineData("Test",20.20,20.20,35,40,10,"Test")]
+        [InlineData("Test2",400,400,20,30,21,"Test2")]
+        [InlineData("Test3",52,52,35,21,33,"Test3")]
+        public async void Test_post_value_temp(string name, double lat, double lon, int temp, int hum, int air,string exp)
+        {
+            //Arrange
+            var insert = new WeatherObservation()
+            {
+                Name = name,
+                Latitude = lat,
+                Longitude = lon,
+                Temperature = temp,
+                Humidity = hum,
+                AirPressure = air
+            };
+            //Act
+            await _uut.PostWeatherObservation(insert);
+            var result = await _uut.getSingle();
+            var okResult = result as OkObjectResult;
+            var contest = okResult.Value as WeatherObservation;
+            //Assert
+            Xunit.Assert.Equal(insert.Temperature,contest.Temperature);
+
+        }
+        [Theory]
+        [InlineData("Test",20.20,20.20,35,40,10,"Test")]
+        [InlineData("Test2",400,400,20,30,21,"Test2")]
+        [InlineData("Test3",52,52,35,21,33,"Test3")]
+        public async void Test_post_value_hum(string name, double lat, double lon, int temp, int hum, int air,string exp)
+        {
+            //Arrange
+            var insert = new WeatherObservation()
+            {
+                Name = name,
+                Latitude = lat,
+                Longitude = lon,
+                Temperature = temp,
+                Humidity = hum,
+                AirPressure = air
+            };
+            //Act
+            await _uut.PostWeatherObservation(insert);
+            var result = await _uut.getSingle();
+            var okResult = result as OkObjectResult;
+            var contest = okResult.Value as WeatherObservation;
+            //Assert
+            Xunit.Assert.Equal(insert.Humidity,contest.Humidity);
+
+        }
+
+        [Theory]
+        [InlineData("Test",20.20,20.20,35,40,10,"Test")]
+        [InlineData("Test2",400,400,20,30,21,"Test2")]
+        [InlineData("Test3",52,52,35,21,33,"Test3")]
+        public async void Test_post_value_air(string name, double lat, double lon, int temp, int hum, int air,string exp)
+        {
+            //Arrange
+            var insert = new WeatherObservation()
+            {
+                Name = name,
+                Latitude = lat,
+                Longitude = lon,
+                Temperature = temp,
+                Humidity = hum,
+                AirPressure = air
+            };
+            //Act
+            await _uut.PostWeatherObservation(insert);
+            var result = await _uut.getSingle();
+            var okResult = result as OkObjectResult;
+            var contest = okResult.Value as WeatherObservation;
+            //Assert
+            Xunit.Assert.Equal(insert.AirPressure,contest.AirPressure);
+
+        }
+
+        [Fact]
+        public void test_Authorize_test()
+        {
+            var ok = _uut.testing();
+            Xunit.Assert.IsType<OkResult>(ok);
+        }
+
+        [Fact]
+        public void test_index()
+        {
+            var result = _uut.index();
+            Xunit.Assert.IsType<RedirectToPageResult>(result);
         }
 
     }

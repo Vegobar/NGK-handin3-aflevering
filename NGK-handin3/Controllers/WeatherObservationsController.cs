@@ -83,7 +83,7 @@ namespace NGK_handin3.Controllers
             if (times.Count() <= 1)
             {
                 var myWeather_all_one_day = await (from p in _context.Weather
-                                                   where (p.Time.Day == times[0].Day)
+                                                   where (p.Time == times[0])
                                                    select p).ToListAsync();
                 return Ok(myWeather_all_one_day);
             }

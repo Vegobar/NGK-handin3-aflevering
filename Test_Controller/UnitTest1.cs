@@ -48,7 +48,7 @@ namespace Test_Controller
         }
 
         [Fact]
-        public async void Test_Observation()
+        public async void Test_Single_Name()
         {
             //Arrange
 
@@ -59,6 +59,20 @@ namespace Test_Controller
             var obj = Xunit.Assert.IsType<WeatherObservation>(contest);
             //Assert
             Xunit.Assert.Equal("Germany",obj.Name);
+        }
+        
+        [Fact]
+        public async void Test_Single_Date()
+        {
+            //Arrange
+            DateTime TestTime = new DateTime(2020, 08, 02, 8, 25, 00);
+            //Act
+            var result = await _uut.getSingle();
+            var okResult = Xunit.Assert.IsType<OkObjectResult>(result);
+            var contest = okResult.Value;
+            var obj = Xunit.Assert.IsType<WeatherObservation>(contest);
+            //Assert
+            Xunit.Assert.Equal(TestTime,obj.Time);
         }
 
 
@@ -96,15 +110,16 @@ namespace Test_Controller
         public async void Test_byDay()
         {
             //Arrange
-            DateTime time1 = new DateTime(2020, 04, 01, 0, 0, 00);
-            DateTime time2 = new DateTime(2020,06,03,0,00,00);
-            DateTime[] times = new [] {time1, time2};
+            DateTime time1 = new DateTime(2020, 01, 01, 02, 00, 00);
+            DateTime time2 = new DateTime(2020,06,03,02,00,00);
+            DateTime[] times = new DateTime[2];
+            times[0] = time1;
+            times[1] = time2;
             //Act
             var result = await _uut.GetWeatherForecast(times);
             var content = result.Value;
-            var count = content.Count;
             //Assert
-            Xunit.Assert.Equal(count,2);
+            Xunit.Assert.Equal(2, content.Count);
         }
 
         [Theory]

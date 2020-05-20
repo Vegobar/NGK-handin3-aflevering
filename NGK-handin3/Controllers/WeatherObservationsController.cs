@@ -76,6 +76,7 @@ namespace NGK_handin3.Controllers
             return weather;
         }
         
+        
         [HttpGet("GetWeatherForecasts")]
         public async Task<ActionResult<List<WeatherObservation>>> GetWeatherForecast([FromBody]DateTime[] times)
         {

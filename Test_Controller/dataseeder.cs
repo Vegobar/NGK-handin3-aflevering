@@ -40,7 +40,8 @@ namespace Test_Controller
                 Longitude = 200.50,
                 Temperature = 35,
                 Humidity = 40,
-                AirPressure = 35
+                AirPressure = 35,
+                Time = new DateTime(2021, 02, 02, 8, 25,00)
             };
             list.Add(obs);
             obs = new WeatherObservation()
@@ -50,7 +51,8 @@ namespace Test_Controller
                 Longitude = 80.50,
                 Temperature = 25,
                 Humidity = 20,
-                AirPressure = 15
+                AirPressure = 15,
+                Time = new DateTime(2020, 08, 02, 8, 25,00)
             };
             list.Add(obs);
             db.AddRange(list);
